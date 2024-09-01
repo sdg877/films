@@ -38,4 +38,19 @@ router.get("/", async (request, response) => {
   }
 })
 
+router.get("/:id", async (request, response) => {
+  try {
+    const { id } = request.params;
+    const activity = await Activity.findById(id);
+    
+    if (!activity) {
+      return response.status(404).json({ message: "Activity not found"})
+    }
+    return response.status(200).json(activity);
+  } catch (error) {
+    console.log(error.message);
+    response.status(500).send({ message: error.message })
+  }
+});
+
 export default router;
