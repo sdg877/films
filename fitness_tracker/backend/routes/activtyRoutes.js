@@ -25,4 +25,17 @@ router.post("/", async (request, response) => {
   }
 });
 
+router.get("/", async (request, response) => {
+  try {
+    const activityAll = await Activity.find({});
+    return response.status(200).json({
+      count: activityAll.length,
+      data: activityAll,
+    });
+  } catch (error) {
+    console.log(error.message);
+    response.status(500).send({ message: error.message })
+  }
+})
+
 export default router;
