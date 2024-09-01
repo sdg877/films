@@ -1,7 +1,7 @@
 import express, { response } from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-import activityRoute from "../routes/activityRoutes.js";
+import activityRoute from './routes/activtyRoutes.js'
 import cors from "cors";
 
 dotenv.config();
