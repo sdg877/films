@@ -84,4 +84,20 @@ router.put("/:id", async (request, response) => {
   }
 });
 
+router.delete("/:id", async (request, response) => {
+  try {
+    const { id } = request.params;
+    const result = await Activity.findByIdAndDelete(id);
+
+    if (!result) {
+      return response.status(404).json({ message: "Activity not found!"});
+    }
+
+    return response.status(404).json({ message: "Activity deleted successfully!"})
+  } catch (error) {
+    console.log(error.message);
+    response.status(500).send({ message: error.message });
+  }
+});
+
 export default router;
