@@ -1,7 +1,7 @@
 import express, { response } from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-import activityRoute from './routes/activtyRoutes.js'
+import activityRoutes from './routes/activtyRoutes.js'
 import cors from "cors";
 
 dotenv.config();
@@ -25,7 +25,7 @@ app.get("/", (request, response) => {
   return response.status(200).send("Welcome to MERN stack");
 });
 
-app.use("/activities", activityRoute);
+app.use("/activity", activityRoutes);
 
 mongoose
   .connect(DATABASE_URL)
