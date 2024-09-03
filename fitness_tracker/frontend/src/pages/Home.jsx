@@ -45,19 +45,19 @@ useEffect(() => {
         <table className="w-full border-seperate border-spacing-2">
           <thead>
             <tr>
-            <th className="birder border-slate-600 rounded-md">No</th>
-              <th className="birder border-slate-600 rounded-md max-md:hidden">
+            <th className="border border-slate-600 rounded-md">No</th>
+              <th className="border border-slate-600 rounded-md max-md:hidden">
                 Date
               </th>
-              <th className="birder border-slate-600 rounded-md">Time</th>
-              <th className="birder border-slate-600 rounded-md max-md:hidden">
+              <th className="border border-slate-600 rounded-md">Time</th>
+              <th className="border border-slate-600 rounded-md max-md:hidden">
                 Activity
               </th>
-              <th className="birder border-slate-600 rounded-md"> Duration (min)</th>
-              <th className="birder border-slate-600 rounded-md">
+              <th className="border border-slate-600 rounded-md"> Duration (min)</th>
+              <th className="border border-slate-600 rounded-md">
               Difficulty
               </th>
-              <th className="birder border-slate-600 rounded-md max-md:hidden">
+              <th className="border border-slate-600 rounded-md max-md:hidden">
                
             Operations
               </th>
