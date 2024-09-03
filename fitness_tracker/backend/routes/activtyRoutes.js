@@ -93,7 +93,7 @@ router.delete("/:id", async (request, response) => {
       return response.status(404).json({ message: "Activity not found!"});
     }
 
-    return response.status(404).json({ message: "Activity deleted successfully!"})
+    return response.status(200).json({ message: "Activity deleted successfully!"})
   } catch (error) {
     console.log(error.message);
     response.status(500).send({ message: error.message });
