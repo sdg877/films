@@ -1,7 +1,7 @@
 import express, { response } from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-import activityRoutes from './routes/activtyRoutes.js'
+import activityRoutes from './routes/activityRoutes.js'
 import cors from "cors";
 
 dotenv.config();
@@ -38,3 +38,5 @@ mongoose
   .catch((error) => {
     console.log(error);
   });
+
+
