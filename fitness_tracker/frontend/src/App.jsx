@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './index.css';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
@@ -9,6 +9,8 @@ import DeleteActivity from './pages/DeleteActivity';
 import SignUpForm from './pages/SignUpForm';
 
 const App = () => {
+  const [user, setUser] = useState(null);
+
   return (
     <BrowserRouter>
       <div>
@@ -18,12 +20,18 @@ const App = () => {
           <Route path='/activity/details/:id' element={<ShowActivity />} />
           <Route path='/activity/edit/:id' element={<EditActivity />} />
           <Route path='/activity/delete/:id' element={<DeleteActivity />} />
-          <Route path='/users/create' element={<SignUpForm />} />
+          <Route path='/users/create' element={<SignUpForm setUser={setUser} />} />
         </Routes>
+
+        {user && (
+          <div>
+            <h2>Welcome, {user.name}!</h2>
+            <p>Email: {user.email}</p>
+          </div>
+        )}
       </div>
     </BrowserRouter>
   );
 }
 
 export default App;
-
