@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import './index.css';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Home from './pages/Home';
+import React, { useState } from "react";
+import "./index.css";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
 import CreateActivity from "./pages/CreateActivity";
-import ShowActivity from './pages/ShowActivity';
-import EditActivity from './pages/EditActivity';
-import DeleteActivity from './pages/DeleteActivity';
-import SignUpForm from './pages/SignUpForm';
+import ShowActivity from "./pages/ShowActivity";
+import EditActivity from "./pages/EditActivity";
+import DeleteActivity from "./pages/DeleteActivity";
+import SignUpForm from "./pages/SignUpForm";
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -15,12 +15,15 @@ const App = () => {
     <BrowserRouter>
       <div>
         <Routes>
-          <Route path='/' element={<Home />} />
-          <Route path='/activity/create' element={<CreateActivity />} />
-          <Route path='/activity/details/:id' element={<ShowActivity />} />
-          <Route path='/activity/edit/:id' element={<EditActivity />} />
-          <Route path='/activity/delete/:id' element={<DeleteActivity />} />
-          <Route path='/users/create' element={<SignUpForm setUser={setUser} />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/activity/create" element={<CreateActivity />} />
+          <Route path="/activity/details/:id" element={<ShowActivity />} />
+          <Route path="/activity/edit/:id" element={<EditActivity />} />
+          <Route path="/activity/delete/:id" element={<DeleteActivity />} />
+          <Route
+            path="/users/create"
+            element={<SignUpForm setUser={setUser} />}
+          />
         </Routes>
 
         {user && (
@@ -32,6 +35,6 @@ const App = () => {
       </div>
     </BrowserRouter>
   );
-}
+};
 
 export default App;
