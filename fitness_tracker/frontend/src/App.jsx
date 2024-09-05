@@ -7,6 +7,7 @@ import ShowActivity from "./pages/ShowActivity";
 import EditActivity from "./pages/EditActivity";
 import DeleteActivity from "./pages/DeleteActivity";
 import SignUpForm from "./pages/SignUpForm";
+import LoginForm from "./pages/LogInForm";
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -24,6 +25,7 @@ const App = () => {
             path="/users/create"
             element={<SignUpForm setUser={setUser} />}
           />
+          <Route path="/login" element={<LoginForm setUser={setUser} />} />
         </Routes>
 
         {user && (
