@@ -6,6 +6,7 @@ import CreateActivity from "./pages/CreateActivity";
 import ShowActivity from './pages/ShowActivity';
 import EditActivity from './pages/EditActivity';
 import DeleteActivity from './pages/DeleteActivity';
+import SignUpForm from './pages/SignUpForm';
 
 const App = () => {
   return (
@@ -17,6 +18,7 @@ const App = () => {
           <Route path='/activity/details/:id' element={<ShowActivity />} />
           <Route path='/activity/edit/:id' element={<EditActivity />} />
           <Route path='/activity/delete/:id' element={<DeleteActivity />} />
+          <Route path='/users/create' element={<SignUpForm />} />
         </Routes>
       </div>
     </BrowserRouter>
