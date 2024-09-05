@@ -2,16 +2,6 @@ import jwt from 'jsonwebtoken';
 import User from '../models/userModel.js';
 import bcrypt from 'bcrypt';
 
-// export const create = async (req, res) => {
-//     try {
-//         const user = await User.create(req.body);
-//         const token = createJWT(user);
-//         res.json(token);
-//     } catch (err) {
-//         res.status(400).json(err);
-//     }
-// }
-
 export const create = async (req, res) => {
     try {
         const user = await User.create(req.body);
