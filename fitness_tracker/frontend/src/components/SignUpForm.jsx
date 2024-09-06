@@ -21,13 +21,8 @@ export default class SignUpForm extends Component {
     evt.preventDefault();
     try {
       const { name, email, password } = this.state;
-
-      console.log("Form Data Submitted: ", { name, email, password });
-
       const formData = { name, email, password };
       const user = await signUp(formData);
-
-      console.log("User successfully signed up: ", user);
 
       if (this.props.setUser) {
         this.props.setUser(user);
@@ -35,7 +30,6 @@ export default class SignUpForm extends Component {
         console.error("setUser function is not passed as a prop");
       }
     } catch (error) {
-      console.error("Sign up failed: ", error);
       this.setState({ error: 'Sign Up Failed - Try Again' });
     }
   };
