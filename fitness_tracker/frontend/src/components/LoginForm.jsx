@@ -1,63 +1,78 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import * as usersService from '../utilities/users-service';
+import React, { useState } from "react";
+import axios from "axios";
 
-export default function LoginForm({ setUser }) {
-  const [credentials, setCredentials] = useState({
-    email: '',
-    password: ''
-  });
-  const [error, setError] = useState('');
-  const navigate = useNavigate();
+const LoginForm = ({ setUser }) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  function handleChange(evt) {
-    setCredentials({ ...credentials, [evt.target.name]: evt.target.value });
-    setError('');
-  }
+  const handleLogin = async (event) => {
+    event.preventDefault();
 
-  async function handleSubmit(evt) {
-    evt.preventDefault();
     try {
-      const user = await usersService.login(credentials);
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/users/login`,
+        { email, password }
+      );
+      const { token, user } = response.data;
+
+      localStorage.setItem("token", token);
       setUser(user);
-      navigate('/');
-    } catch {
-      setError('Log In Failed - Try Again');
+      setError("");
+    } catch (error) {
+      console.error("Login failed:", error);
+      setError("Invalid email or password.");
     }
-  }
+  };
 
   return (
-    <div className="mt-5 max-w-md mx-auto p-4 bg-white shadow-md rounded">
-      <form autoComplete="off" onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-gray-700 font-semibold mb-2">Email</label>
+    <div className="max-w-md mx-auto p-4">
+      <h2 className="text-2xl font-bold mb-4">Login</h2>
+      <form onSubmit={handleLogin} className="space-y-4">
+        <div>
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Email
+          </label>
           <input
-            type="text"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             id="email"
-            name="email"
-            value={credentials.email}
-            onChange={handleChange}
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
             required
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           />
         </div>
-        <div className="mb-4">
-          <label htmlFor="password" className="block text-gray-700 font-semibold mb-2">Password</label>
+        <div>
+          <label
+            htmlFor="password"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Password
+          </label>
           <input
-            type="password"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             id="password"
-            name="password"
-            value={credentials.password}
-            onChange={handleChange}
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
             required
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           />
         </div>
-        <div className="mb-4">
-          <button type="submit" className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">LOG IN</button>
-        </div>
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+        <button
+          type="submit"
+          className="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Login
+        </button>
       </form>
-      {error && <p className="text-red-500 text-center">{error}</p>}
     </div>
   );
-}
+};
+
+export default LoginForm;
