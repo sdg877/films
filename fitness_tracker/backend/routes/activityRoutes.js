@@ -3,28 +3,6 @@ import { Activity } from "../models/activityModel.js";
 
 const router = express.Router();
 
-// router.post("/", async (request, response) => {
-//   try {
-//     const { date, time, activity, duration, difficulty } = request.body;
-
-//     if (!date || !time || !activity || !duration || !difficulty) {
-//       return response.status(400).send({
-//         message:
-//           "Please provide all required fields: date, time, activity, duration, difficulty",
-//       });
-//     }
-
-//     const newActivity = { date, time, activity, duration, difficulty };
-
-//     const activityRecord = await Activity.create(newActivity);
-
-//     return response.status(201).send(activityRecord);
-//   } catch (error) {
-//     console.error(error.message);
-//     response.status(500).send({ message: error.message });
-//   }
-// });
-
 router.post("/", async (request, response) => {
   try {
     const { date, time, activity, duration, difficulty } = request.body;
@@ -36,16 +14,15 @@ router.post("/", async (request, response) => {
       });
     }
 
-    // Include the logged-in user's ID
-    const userId = request.user._id; // Assuming req.user contains the logged-in user
+    const userId = request.user._id;
 
-    const newActivity = { 
-      user: userId, // Link the activity to the user
-      date, 
-      time, 
-      activity, 
-      duration, 
-      difficulty 
+    const newActivity = {
+      user: userId,
+      date,
+      time,
+      activity,
+      duration,
+      difficulty,
     };
 
     const activityRecord = await Activity.create(newActivity);
@@ -57,24 +34,10 @@ router.post("/", async (request, response) => {
   }
 });
 
-
-// router.get("/", async (request, response) => {
-//   try {
-//     const activityAll = await Activity.find({});
-//     return response.status(200).json({
-//       count: activityAll.length,
-//       data: activityAll,
-//     });
-//   } catch (error) {
-//     console.log(error.message);
-//     response.status(500).send({ message: error.message });
-//   }
-// });
-
 router.get("/", async (request, response) => {
   try {
-    const userId = request.user._id; // Assuming req.user contains the logged-in user
-    const activityAll = await Activity.find({ user: userId }); // Filter by the logged-in user
+    const userId = request.user._id;
+    const activityAll = await Activity.find({ user: userId });
 
     return response.status(200).json({
       count: activityAll.length,
@@ -85,7 +48,6 @@ router.get("/", async (request, response) => {
     response.status(500).send({ message: error.message });
   }
 });
-
 
 router.get("/:id", async (request, response) => {
   try {
@@ -139,10 +101,12 @@ router.delete("/:id", async (request, response) => {
     const result = await Activity.findByIdAndDelete(id);
 
     if (!result) {
-      return response.status(404).json({ message: "Activity not found!"});
+      return response.status(404).json({ message: "Activity not found!" });
     }
 
-    return response.status(200).json({ message: "Activity deleted successfully!"})
+    return response
+      .status(200)
+      .json({ message: "Activity deleted successfully!" });
   } catch (error) {
     console.log(error.message);
     response.status(500).send({ message: error.message });

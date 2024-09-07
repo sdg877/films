@@ -1,12 +1,12 @@
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
 
 export default function checkToken(req, res, next) {
-  let token = req.get('Authorization') || req.query.token;
+  let token = req.get("Authorization") || req.query.token;
   if (token) {
-    token = token.replace('Bearer ', '');
-    jwt.verify(token, process.env.SECRET, function(err, decoded) {
-      req.user = err ? null : decoded.user;  
-      req.exp = err ? null : new Date(decoded.exp * 1000);  
+    token = token.replace("Bearer ", "");
+    jwt.verify(token, process.env.SECRET, function (err, decoded) {
+      req.user = err ? null : decoded.user;
+      req.exp = err ? null : new Date(decoded.exp * 1000);
       return next();
     });
   } else {
