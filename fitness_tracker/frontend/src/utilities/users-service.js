@@ -1,10 +1,22 @@
 import * as usersAPI from "./users-api";
+import axios from 'axios';
+
+// export async function signUp(userData) {
+//   const token = await usersAPI.signUp(userData);
+//   localStorage.setItem("token", token);
+//   return getUser();
+// }
 
 export async function signUp(userData) {
-  const token = await usersAPI.signUp(userData);
-  localStorage.setItem("token", token);
-  return getUser();
+  try {
+    const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/users`, userData);
+    return response.data;
+  } catch (error) {
+    console.error("Error in signUp function:", error);
+    throw error;
+  }
 }
+
 
 export async function login(userData) {
   const token = await usersAPI.login(userData);

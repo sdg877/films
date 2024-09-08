@@ -551,6 +551,11 @@ const Home = ({ user, setUser }) => {
         try {
           const token = localStorage.getItem("token");
 
+          // Ensure the token exists
+          if (!token) {
+            throw new Error("No token found.");
+          }
+
           const response = await axios.get(
             `${import.meta.env.VITE_BACKEND_URL}/activity`,
             {
@@ -561,9 +566,10 @@ const Home = ({ user, setUser }) => {
           );
 
           // Filter activities based on user ID
-          const filteredActivities = response.data.data.filter(
-            (activity) => activity.user.toString() === user._id.toString() // Ensure type consistency
-          );
+          const filteredActivities = response.data.data.filter((activity) => {
+            // Ensure that activity.user is defined and can be compared
+            return activity.user && activity.user.toString() === user._id.toString();
+          });
 
           const formattedData = filteredActivities.map((activity) => {
             const dateObj = new Date(activity.date);
@@ -573,14 +579,20 @@ const Home = ({ user, setUser }) => {
 
           setActivities(formattedData); // Update the state with the filtered activities
         } catch (error) {
-          console.error("Error fetching activities:", error);
+          // Check if the error status is 401 and handle accordingly
+          if (error.response && error.response.status === 401) {
+            console.error("Unauthorized access:", error.response.data);
+            setUser(null); // Clear user state to redirect to login
+          } else {
+            console.error("Error fetching activities:", error);
+          }
         } finally {
           setLoading(false);
         }
       };
       fetchActivities();
     }
-  }, [user]);
+  }, [user, setUser]); // Add setUser to the dependency array to handle changes
 
   if (!user) {
     return (
