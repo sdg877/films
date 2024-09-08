@@ -1,12 +1,6 @@
 import * as usersAPI from "./users-api";
 import axios from 'axios';
 
-// export async function signUp(userData) {
-//   const token = await usersAPI.signUp(userData);
-//   localStorage.setItem("token", token);
-//   return getUser();
-// }
-
 export async function signUp(userData) {
   try {
     const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/users`, userData);
