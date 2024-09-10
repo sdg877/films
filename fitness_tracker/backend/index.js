@@ -3,8 +3,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import cors from "cors";
 import authenticateUser from "./middleware/authMiddleware.js";
-
-import activityRoutes from "./routes/activityRoutes.js";
+import activityRoutes from "./routes/activityRoutes.js"
 import userRoutes from "./routes/userRoutes.js";
 
 dotenv.config();

@@ -1,3 +1,48 @@
+// import jwt from 'jsonwebtoken';
+
+// const authenticateUser = (req, res, next) => {
+//   const authHeader = req.headers.authorization;
+//   if (!authHeader || !authHeader.startsWith('Bearer ')) {
+//     return res.status(401).json({ error: 'Unauthorized' });
+//   }
+
+//   const token = authHeader.split(' ')[1]; 
+
+//   jwt.verify(token, process.env.SECRET, (err, decoded) => {
+//     if (err) {
+//       return res.status(401).json({ error: 'Unauthorized' });
+//     }
+
+//     req.user = decoded; 
+//     next();
+//   });
+// };
+
+// export default authenticateUser;
+
+// import jwt from 'jsonwebtoken';
+
+// const authenticateUser = (req, res, next) => {
+//   const authHeader = req.headers.authorization;
+//   if (!authHeader || !authHeader.startsWith('Bearer ')) {
+//     return res.status(401).json({ error: 'Unauthorized' });
+//   }
+
+//   const token = authHeader.split(' ')[1];
+
+//   jwt.verify(token, process.env.SECRET, (err, decoded) => {
+//     if (err) {
+//       return res.status(401).json({ error: 'Unauthorized' });
+//     }
+
+//     console.log("Decoded JWT:", decoded); // Optional: Debug log
+//     req.user = decoded; 
+//     next();
+//   });
+// };
+
+// export default authenticateUser;
+
 import jwt from 'jsonwebtoken';
 
 const authenticateUser = (req, res, next) => {
@@ -6,14 +51,15 @@ const authenticateUser = (req, res, next) => {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  const token = authHeader.split(' ')[1]; 
+  const token = authHeader.split(' ')[1];
 
   jwt.verify(token, process.env.SECRET, (err, decoded) => {
     if (err) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    req.user = decoded; 
+    console.log("Decoded JWT:", decoded);
+    req.user = decoded.user; 
     next();
   });
 };
