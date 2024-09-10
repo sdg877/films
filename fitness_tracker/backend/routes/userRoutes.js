@@ -5,8 +5,6 @@ import ensureLoggedIn from "../config/ensureLoggedIn.js";
 const router = express.Router();
 
 router.get("/check-token", ensureLoggedIn, checkToken);
-// router.post("/", create);  
-// router.post("/login", login);
 router.post('/signup', create);
 router.post('/login', login);
 router.put("/:id", update);
