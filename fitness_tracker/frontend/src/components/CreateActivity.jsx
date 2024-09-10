@@ -209,7 +209,7 @@ const CreateActivity = () => {
     const data = { date, time, activity, duration, difficulty };
     setLoading(true);
 
-    axios.post("http://localhost:5500/api/activity", data, {
+    axios.post("http://localhost:5500/activity", data, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`
       }
