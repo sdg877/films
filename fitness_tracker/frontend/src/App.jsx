@@ -31,12 +31,6 @@ const App = () => {
           <Route path="/login" element={<LoginForm setUser={setUser} />} />
         </Routes>
 
-        {user && (
-          <div>
-            <h2>Welcome, {user.name}!</h2>
-            <p>Email: {user.email}</p>
-          </div>
-        )}
       </div>
     </BrowserRouter>
   );
