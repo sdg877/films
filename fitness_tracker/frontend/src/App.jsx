@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./index.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
@@ -11,6 +11,21 @@ import LoginForm from "./components/LoginForm";
 
 const App = () => {
   const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem("user", JSON.stringify(user));
+    } else {
+      localStorage.removeItem("user");
+    }
+  }, [user]);
 
   return (
     <BrowserRouter>
@@ -30,7 +45,6 @@ const App = () => {
           />
           <Route path="/login" element={<LoginForm setUser={setUser} />} />
         </Routes>
-
       </div>
     </BrowserRouter>
   );
