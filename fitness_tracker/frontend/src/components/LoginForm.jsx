@@ -11,7 +11,7 @@ const LoginForm = ({ setUser }) => {
 
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/users/login`,
+        `${import.meta.env.VITE_BACKEND_URL}/users/login`,
         { email, password }
       );
 

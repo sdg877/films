@@ -56,7 +56,7 @@ const Home = ({ user, setUser }) => {
       };
 
       fetchActivities();
-    }
+    }  
   }, [user, setUser]);
 
   const logout = () => {
