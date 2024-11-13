@@ -3,7 +3,7 @@ import axios from 'axios';
 
 export async function signUp(userData) {
   try {
-    const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/users`, userData);
+    const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/users/signup`, userData);
     return response.data;
   } catch (error) {
     console.error("Error in signUp function:", error);
