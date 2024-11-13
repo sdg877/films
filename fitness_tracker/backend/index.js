@@ -34,7 +34,7 @@ app.get("/user/:userId", async (req, res) => {
 });
 
 app.use("/activity", authenticateUser, activityRoutes);
-app.use("/api/users", userRoutes);
+app.use("/users", userRoutes);
 
 mongoose
   .connect(DATABASE_URL)
