@@ -7,7 +7,6 @@ export default class SignUpForm extends Component {
     email: "",
     password: "",
     confirm: "",
-    error: "",
   };
 
   handleChange = (evt) => {
@@ -29,10 +28,7 @@ export default class SignUpForm extends Component {
       const { name, email, password } = this.state;
       const formData = { name, email, password };
 
-      console.log("Submitting form with data:", formData);
-
       const user = await signUp(formData);
-      console.log("User signed up:", user);
 
       if (this.props.setUser) {
         this.props.setUser(user);
@@ -148,4 +144,3 @@ export default class SignUpForm extends Component {
     );
   }
 }
-
