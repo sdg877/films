@@ -7,11 +7,13 @@ import AuthButtons from "../components/AuthButtons";
 import LoginForm from "../components/LoginForm";
 import SignUpForm from "../components/SignUpForm";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
 const Home = ({ user, setUser }) => {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isLoginView, setIsLoginView] = useState(true);
-  const [filter, setFilter] = useState("All"); 
+  const [filter, setFilter] = useState("All");
   const [filteredActivities, setFilteredActivities] = useState([]);
   const [filterValue, setFilterValue] = useState("");
 
@@ -26,14 +28,11 @@ const Home = ({ user, setUser }) => {
             throw new Error("No token found.");
           }
 
-          const response = await axios.get(
-            `${import.meta.env.VITE_BACKEND_URL}/activity`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
+          const response = await axios.get(`${BACKEND_URL}/activity`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
 
           const formattedData = response.data.data.map((activity) => {
             const dateObj = new Date(activity.date);
@@ -42,7 +41,7 @@ const Home = ({ user, setUser }) => {
           });
 
           setActivities(formattedData);
-          setFilteredActivities(formattedData); 
+          setFilteredActivities(formattedData);
         } catch (error) {
           if (error.response && error.response.status === 401) {
             console.error("Unauthorized access:", error.response.data);
@@ -56,14 +55,13 @@ const Home = ({ user, setUser }) => {
       };
 
       fetchActivities();
-    }  
+    }
   }, [user, setUser]);
 
   const logout = () => {
     localStorage.removeItem("token");
     setUser(null);
   };
-
 
   const handleFilterChange = (e) => {
     setFilter(e.target.value);
@@ -90,7 +88,9 @@ const Home = ({ user, setUser }) => {
           break;
         case "Difficulty":
           filtered = activities.filter((activity) =>
-            activity.difficulty.toLowerCase().includes(filterValue.toLowerCase())
+            activity.difficulty
+              .toLowerCase()
+              .includes(filterValue.toLowerCase())
           );
           break;
         case "Activity":
@@ -112,8 +112,15 @@ const Home = ({ user, setUser }) => {
         <h1 className="text-2xl font-bold text-center mb-8">
           Welcome to the Fitness Tracker
         </h1>
-        <AuthButtons isLoginView={isLoginView} setIsLoginView={setIsLoginView} />
-        {isLoginView ? <LoginForm setUser={setUser} /> : <SignUpForm setUser={setUser} />}
+        <AuthButtons
+          isLoginView={isLoginView}
+          setIsLoginView={setIsLoginView}
+        />
+        {isLoginView ? (
+          <LoginForm setUser={setUser} />
+        ) : (
+          <SignUpForm setUser={setUser} />
+        )}
       </div>
     );
   }
@@ -123,10 +130,12 @@ const Home = ({ user, setUser }) => {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl my-8">Activity List</h1>
         <Link to="/activity/create">
-          <button className="px-4 py-2 bg-sky-800 text-white rounded-md">Add Activity</button>
+          <button className="px-4 py-2 bg-sky-800 text-white rounded-md">
+            Add Activity
+          </button>
         </Link>
-        <button 
-          className="px-4 py-2 bg-red-500 text-white rounded-md" 
+        <button
+          className="px-4 py-2 bg-red-500 text-white rounded-md"
           onClick={logout}
         >
           Logout
@@ -134,8 +143,10 @@ const Home = ({ user, setUser }) => {
       </div>
 
       <div className="my-4">
-        <label htmlFor="filter" className="mr-2 font-semibold">Filter by:</label>
-        <select 
+        <label htmlFor="filter" className="mr-2 font-semibold">
+          Filter by:
+        </label>
+        <select
           id="filter"
           value={filter}
           onChange={handleFilterChange}
@@ -159,7 +170,11 @@ const Home = ({ user, setUser }) => {
         )}
       </div>
 
-      {loading ? <Spinner /> : <ActivityTable activities={filteredActivities} />}
+      {loading ? (
+        <Spinner />
+      ) : (
+        <ActivityTable activities={filteredActivities} />
+      )}
     </div>
   );
 };
