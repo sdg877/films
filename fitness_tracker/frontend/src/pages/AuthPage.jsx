@@ -1,4 +1,3 @@
-// src/pages/AuthPage.jsx
 import React, { useState } from "react";
 import AuthButtons from "../components/AuthButtons";
 import LoginForm from "../components/LoginForm";
