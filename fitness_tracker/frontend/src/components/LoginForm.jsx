@@ -1,10 +1,12 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const LoginForm = ({ setUser }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -20,7 +22,7 @@ const LoginForm = ({ setUser }) => {
       localStorage.setItem("token", token);
 
       setUser(user);
-
+      navigate("/");
       setError("");
     } catch (error) {
       if (error.response) {
