@@ -5,29 +5,31 @@ export const createActivity = async (req, res) => {
     const { date, time, activity, duration, difficulty } = req.body;
 
     if (!date || !time || !activity || !duration || !difficulty) {
-      return res.status(400).send({
+      return res.status(400).json({
         message:
-          "Please provide all required fields: date, time, activity, duration, difficulty",
+          "All fields are required: date, time, activity, duration, difficulty",
       });
     }
 
     const userId = req.user._id;
 
-    const newActivity = {
+    const newActivity = new Activity({
       user: userId,
       date,
       time,
       activity,
       duration,
       difficulty,
-    };
+    });
 
-    const activityRecord = await Activity.create(newActivity);
+    const savedActivity = await newActivity.save();
 
-    return res.status(201).send(activityRecord);
+    return res.status(201).json(savedActivity);
   } catch (error) {
-    console.error(error.message);
-    res.status(500).send({ message: error.message });
+    console.error("Error creating activity:", error.message);
+    return res
+      .status(500)
+      .json({ message: "Server error. Please try again later." });
   }
 };
 
@@ -36,15 +38,12 @@ export const getActivities = async (req, res) => {
     const userId = req.user._id;
     const activities = await Activity.find({ user: userId });
 
-    if (!activities.length) {
-      return res
-        .status(404)
-        .json({ message: "No activities found for this user" });
-    }
-
-    res.json({ data: activities });
+    return res.status(200).json({ data: activities });
   } catch (error) {
-    res.status(500).json({ error: "Server Error" });
+    console.error("Error fetching activities:", error.message);
+    return res
+      .status(500)
+      .json({ message: "Server error. Please try again later." });
   }
 };
 
@@ -54,13 +53,17 @@ export const getActivityById = async (req, res) => {
     const activity = await Activity.findById(id);
 
     if (!activity || activity.user.toString() !== req.user._id.toString()) {
-      return res.status(404).json({ message: "Activity not found" });
+      return res
+        .status(404)
+        .json({ message: "Activity not found or access denied." });
     }
 
     return res.status(200).json(activity);
   } catch (error) {
-    console.log(error.message);
-    res.status(500).send({ message: error.message });
+    console.error("Error fetching activity by ID:", error.message);
+    return res
+      .status(500)
+      .json({ message: "Server error. Please try again later." });
   }
 };
 
@@ -69,34 +72,41 @@ export const updateActivity = async (req, res) => {
     const { date, time, activity, duration, difficulty } = req.body;
 
     if (!date || !time || !activity || !duration || !difficulty) {
-      return res.status(400).send({
+      return res.status(400).json({
         message:
-          "Please provide all required fields: date, time, activity, duration, difficulty",
+          "All fields are required: date, time, activity, duration, difficulty",
       });
     }
 
     const { id } = req.params;
-    const result = await Activity.findById(id);
+    const activityRecord = await Activity.findById(id);
 
-    if (!result || result.user.toString() !== req.user._id.toString()) {
-      return res.status(404).json({ message: "Activity not found!" });
+    if (
+      !activityRecord ||
+      activityRecord.user.toString() !== req.user._id.toString()
+    ) {
+      return res
+        .status(404)
+        .json({ message: "Activity not found or access denied." });
     }
 
-    const updatedActivity = await Activity.findByIdAndUpdate(
-      id,
-      { date, time, activity, duration, difficulty },
-      { new: true }
-    );
+    activityRecord.date = date;
+    activityRecord.time = time;
+    activityRecord.activity = activity;
+    activityRecord.duration = duration;
+    activityRecord.difficulty = difficulty;
 
-    return res
-      .status(200)
-      .send({
-        message: "Activity updated successfully",
-        data: updatedActivity,
-      });
+    const updatedActivity = await activityRecord.save();
+
+    return res.status(200).json({
+      message: "Activity updated successfully.",
+      data: updatedActivity,
+    });
   } catch (error) {
-    console.log(error.message);
-    res.status(500).send({ message: error.message });
+    console.error("Error updating activity:", error.message);
+    return res
+      .status(500)
+      .json({ message: "Server error. Please try again later." });
   }
 };
 
@@ -106,14 +116,18 @@ export const deleteActivity = async (req, res) => {
     const activity = await Activity.findById(id);
 
     if (!activity || activity.user.toString() !== req.user._id.toString()) {
-      return res.status(404).json({ message: "Activity not found!" });
+      return res
+        .status(404)
+        .json({ message: "Activity not found or access denied." });
     }
 
-    await Activity.findByIdAndDelete(id);
+    await activity.remove();
 
-    return res.status(200).json({ message: "Activity deleted successfully!" });
+    return res.status(200).json({ message: "Activity deleted successfully." });
   } catch (error) {
-    console.log(error.message);
-    res.status(500).send({ message: error.message });
+    console.error("Error deleting activity:", error.message);
+    return res
+      .status(500)
+      .json({ message: "Server error. Please try again later." });
   }
 };
