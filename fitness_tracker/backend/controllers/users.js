@@ -1,19 +1,28 @@
-import jwt from 'jsonwebtoken';
-import User from '../models/userModel.js';
-import bcrypt from 'bcrypt';
-
+import jwt from "jsonwebtoken";
+import User from "../models/userModel.js";
+import bcrypt from "bcrypt";
 
 export const create = async (req, res) => {
   try {
-    const user = await User.create(req.body);
+    const { email, password, isAdmin } = req.body;
+
+    const user = await User.create({
+      email,
+      password,
+      isAdmin: isAdmin || false,
+    });
+
     const token = createJWT(user);
-    res.status(201).json({ token, user: { id: user._id, email: user.email } });
+
+    res.status(201).json({
+      token,
+      user: { id: user._id, email: user.email, isAdmin: user.isAdmin },
+    });
   } catch (err) {
     console.error("Error creating user:", err);
     res.status(400).json({ message: err.message });
   }
 };
-
 
 export const login = async (req, res) => {
   try {
@@ -29,11 +38,18 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    const token = jwt.sign({ user: { _id: user._id } }, process.env.SECRET, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      { user: { _id: user._id, isAdmin: user.isAdmin } },
+      process.env.SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
 
-    res.json({ token, user: { id: user._id, email: user.email } });
+    res.json({
+      token,
+      user: { id: user._id, email: user.email, isAdmin: user.isAdmin },
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
@@ -41,7 +57,11 @@ export const login = async (req, res) => {
 };
 
 export default function createJWT(user) {
-  return jwt.sign({ user: { _id: user._id } }, process.env.SECRET, { expiresIn: "24h" });
+  return jwt.sign(
+    { user: { _id: user._id, isAdmin: user.isAdmin } },
+    process.env.SECRET,
+    { expiresIn: "24h" }
+  );
 }
 
 export const checkToken = (req, res) => {
@@ -60,4 +80,3 @@ export const update = async (req, res) => {
     res.status(400).json({ error: "Failed to update user" });
   }
 };
-
