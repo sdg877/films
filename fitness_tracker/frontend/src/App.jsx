@@ -11,27 +11,20 @@ import AuthPage from "./pages/AuthPage";
 const App = () => {
   const [user, setUser] = useState(null);
 
-
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      console.log("Stored user found:", storedUser);
       setUser(JSON.parse(storedUser));
-    } else {
-      console.log("No stored user found.");
     }
   }, []);
   
   useEffect(() => {
     if (user) {
-      console.log("User state updated:", user);
       localStorage.setItem("user", JSON.stringify(user));
     } else {
-      console.log("User state cleared.");
       localStorage.removeItem("user");
     }
   }, [user]);
-  
 
   return (
     <BrowserRouter>
