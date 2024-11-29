@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from "./AuthContext";
 
 function SignUpForm() {
   const [formData, setFormData] = useState({
@@ -11,6 +12,7 @@ function SignUpForm() {
   });
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleChange = (evt) => {
     const { name, value } = evt.target;
@@ -35,18 +37,30 @@ function SignUpForm() {
         formData
       );
 
+      console.log("Signup response:", response);
+
       if (response.status === 201) {
         const { token, user } = response.data;
-        localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(user));
-        navigate("/activity");
+
+        if (typeof login === "function") {
+          login(token, user);
+          console.log("User logged in successfully, navigating to /activity");
+          navigate("/activity");
+        } else {
+          console.error("login is not a function");
+          setError("Internal error: Unable to log in.");
+        }
       } else {
         const errorMessage = response.data?.message || "Signup failed";
         setError(errorMessage);
       }
     } catch (error) {
       console.error("Signup failed:", error);
-      setError("An unexpected error occurred. Please try again later.");
+      if (error.response) {
+        setError(error.response.data?.message || "Signup failed.");
+      } else {
+        setError("An unexpected error occurred. Please try again later.");
+      }
     }
   };
 
