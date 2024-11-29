@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -6,7 +6,7 @@ const LoginForm = ({ setUser }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const navigate = useNavigate();
+  const navigate = useNavigate();  
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -21,9 +21,15 @@ const LoginForm = ({ setUser }) => {
 
       localStorage.setItem("token", token);
 
-      setUser(user);
-      navigate("/");
+      if (typeof setUser === "function") {
+        await setUser(user);  
+        navigate("/activity");
+      } else {
+        console.error("setUser is not a function");
+      }
+
       setError("");
+
     } catch (error) {
       if (error.response) {
         console.error("Login failed:", error.response.data);
