@@ -1,33 +1,32 @@
-import React, { useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const CreateActivity = () => {
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
-  const [activity, setActivity] = useState("");
-  const [duration, setDuration] = useState("");
-  const [difficulty, setDifficulty] = useState("Easy");
+  const [date, setDate] = useState('');
+  const [time, setTime] = useState('');
+  const [activity, setActivity] = useState('');
+  const [duration, setDuration] = useState('');
+  const [difficulty, setDifficulty] = useState('Easy');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSaveActivity = () => {
+  const handleSaveActivity = async () => {
     const data = { date, time, activity, duration, difficulty };
     setLoading(true);
 
-    axios.post("http://localhost:5500/activity", data, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`
-      }
-    })
-    .then(() => {
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/activity`, data, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
       setLoading(false);
-      navigate("/");
-    })
-    .catch((error) => {
+      navigate('/activity');
+    } catch (error) {
       setLoading(false);
-      console.log(error);
-    });
+      console.error('Error saving activity:', error.message);
+    }
   };
 
   return (
