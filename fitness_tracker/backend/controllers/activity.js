@@ -36,8 +36,7 @@ export const createActivity = async (req, res) => {
 export const getActivities = async (req, res) => {
   try {
     const userId = req.user._id;
-    const activities = await Activity.find({ user: userId });
-
+    const activities = await Activity.find({ user: userId }) || [];
     return res.status(200).json({ data: activities });
   } catch (error) {
     console.error("Error fetching activities:", error.message);
@@ -46,6 +45,7 @@ export const getActivities = async (req, res) => {
       .json({ message: "Server error. Please try again later." });
   }
 };
+
 
 export const getActivityById = async (req, res) => {
   try {
