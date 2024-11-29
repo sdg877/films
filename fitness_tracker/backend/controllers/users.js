@@ -4,9 +4,10 @@ import bcrypt from "bcrypt";
 
 export const create = async (req, res) => {
   try {
-    const { email, password, isAdmin } = req.body;
+    const { name, email, password, isAdmin } = req.body;
 
     const user = await User.create({
+      name,  
       email,
       password,
       isAdmin: isAdmin || false,
@@ -16,7 +17,7 @@ export const create = async (req, res) => {
 
     res.status(201).json({
       token,
-      user: { id: user._id, email: user.email, isAdmin: user.isAdmin },
+      user: { id: user._id, name: user.name, email: user.email, isAdmin: user.isAdmin },  
     });
   } catch (err) {
     console.error("Error creating user:", err);
@@ -71,12 +72,17 @@ export const checkToken = (req, res) => {
 export const update = async (req, res) => {
   try {
     const { id } = req.params;
+
     const updatedUser = await User.findByIdAndUpdate(id, req.body, {
-      new: true,
+      new: true, 
     });
-    res.json(updatedUser);
+
+    res.json(updatedUser); 
   } catch (error) {
     console.error(error);
     res.status(400).json({ error: "Failed to update user" });
   }
 };
+
+
+

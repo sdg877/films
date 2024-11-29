@@ -134,19 +134,23 @@ export const deleteActivity = async (req, res) => {
 
 export const getAllActivities = async (req, res) => {
   try {
-    if (!req.user.isAdmin) {
-      return res.status(403).json({ message: "Access denied. Admins only." });
-    }
-
     const activities = await Activity.find()
-      .populate("user", "name email")
+      .populate("user", "name email username") 
       .sort({ date: -1 });
 
-    return res.status(200).json({ data: activities });
+  
+    if (!activities || activities.length === 0) {
+      return res.status(404).json({ message: "No activities found" });
+    }
+
+    return res.status(200).json({ data: activities }); // Return activities to the frontend
   } catch (error) {
     console.error("Error fetching all activities:", error.message);
-    return res
-      .status(500)
-      .json({ message: "Server error. Please try again later." });
+    return res.status(500).json({ message: "Server error. Please try again later." });
   }
 };
+
+
+
+
+
