@@ -25,13 +25,11 @@ const SignUpForm = () => {
         `${BACKEND_URL}/users/signup`,
         formData
       );
-      console.log("Signup response:", response);
 
       if (response.status === 201) {
         const token = response.data.token;
         if (token) {
           localStorage.setItem("authToken", token);
-          console.log("User logged in successfully, navigating to /activity");
           navigate("/activity");
         } else {
           console.error("No token received from signup response");
