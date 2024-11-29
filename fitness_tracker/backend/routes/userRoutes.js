@@ -7,7 +7,7 @@ const router = express.Router();
 router.get("/check-token", ensureLoggedIn, checkToken);
 router.post('/signup', create);
 router.post('/login', login);
-router.put("/:id", update);
+router.post("/:id", update);
 
 export default router;
 
