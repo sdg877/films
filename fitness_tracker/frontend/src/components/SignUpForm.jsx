@@ -1,174 +1,105 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 import axios from "axios";
-import { useAuth } from "./AuthContext";
+import { useNavigate } from "react-router-dom";
 
-function SignUpForm() {
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+const SignUpForm = () => {
   const [formData, setFormData] = useState({
-    name: "",
+    username: "",
     email: "",
     password: "",
-    confirm: "",
   });
-  const [error, setError] = useState("");
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const { login } = useAuth();
 
-  const handleChange = (evt) => {
-    const { name, value } = evt.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-    setError("");
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (evt) => {
-    evt.preventDefault();
-
-    if (formData.password !== formData.confirm) {
-      setError("Passwords do not match");
-      return;
-    }
-
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/users/signup`,
+        `${BACKEND_URL}/users/signup`,
         formData
       );
-
       console.log("Signup response:", response);
 
       if (response.status === 201) {
-        const { token, user } = response.data;
-
-        if (typeof login === "function") {
-          login(token, user);
+        const token = response.data.token;
+        if (token) {
+          localStorage.setItem("authToken", token);
           console.log("User logged in successfully, navigating to /activity");
           navigate("/activity");
         } else {
-          console.error("login is not a function");
-          setError("Internal error: Unable to log in.");
+          console.error("No token received from signup response");
+          setError("Signup succeeded but token is missing");
         }
-      } else {
-        const errorMessage = response.data?.message || "Signup failed";
-        setError(errorMessage);
       }
-    } catch (error) {
-      console.error("Signup failed:", error);
-      if (error.response) {
-        setError(error.response.data?.message || "Signup failed.");
-      } else {
-        setError("An unexpected error occurred. Please try again later.");
-      }
+    } catch (err) {
+      console.error("Error during signup:", err.response?.data || err.message);
+      setError(err.response?.data?.message || "Signup failed");
     }
   };
 
-  const disable = formData.password !== formData.confirm;
-
   return (
-    <div className="mt-5">
-      <form autoComplete="off" onSubmit={handleSubmit}>
-        <div className="mb-4 flex justify-center">
-          <div className="w-full max-w-md">
-            <label
-              htmlFor="name"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Name
-            </label>
-            <input
-              type="text"
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
-          </div>
+    <div className="p-4 max-w-md mx-auto">
+      <h1 className="text-2xl font-bold mb-4">Sign Up</h1>
+      {error && <p className="text-red-500">{error}</p>}
+      <form onSubmit={handleSubmit}>
+        <div className="mb-4">
+          <label htmlFor="username" className="block font-semibold">
+            Username
+          </label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            value={formData.username}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border rounded-md"
+            required
+          />
         </div>
-
-        <div className="mb-4 flex justify-center">
-          <div className="w-full max-w-md">
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Email
-            </label>
-            <input
-              type="email"
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
+        <div className="mb-4">
+          <label htmlFor="email" className="block font-semibold">
+            Email
+          </label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border rounded-md"
+            required
+          />
         </div>
-
-        <div className="mb-4 flex justify-center">
-          <div className="w-full max-w-md">
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Password
-            </label>
-            <input
-              type="password"
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
-          </div>
+        <div className="mb-4">
+          <label htmlFor="password" className="block font-semibold">
+            Password
+          </label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border rounded-md"
+            required
+          />
         </div>
-
-        <div className="mb-4 flex justify-center">
-          <div className="w-full max-w-md">
-            <label
-              htmlFor="confirm"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Confirm Password
-            </label>
-            <input
-              type="password"
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              id="confirm"
-              name="confirm"
-              value={formData.confirm}
-              onChange={handleChange}
-              required
-            />
-          </div>
-        </div>
-
-        <div className="mb-4 flex justify-center">
-          <div className="w-full max-w-md">
-            <button
-              type="submit"
-              className={`w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                disable
-                  ? "bg-gray-400"
-                  : "bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2"
-              }`}
-              disabled={disable}
-            >
-              SIGN UP
-            </button>
-          </div>
-        </div>
+        <button
+          type="submit"
+          className="w-full bg-blue-500 text-white py-2 rounded-md"
+        >
+          Sign Up
+        </button>
       </form>
-
-      <p className="text-center text-red-500 mt-4">{error}</p>
     </div>
   );
-}
+};
 
 export default SignUpForm;
