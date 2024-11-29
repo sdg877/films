@@ -17,33 +17,31 @@ const Home = ({ user, setUser }) => {
     if (user) {
       const fetchActivities = async () => {
         setLoading(true);
+
+        const token = localStorage.getItem("token");
+        if (!token) {
+          setLoading(false);
+          return;
+        }
+
         try {
-          const token = localStorage.getItem("token");
-
-          if (!token) {
-            throw new Error("No token found.");
-          }
-
-          const response = await axios.get(`${BACKEND_URL}/activity`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+          const { data } = await axios.get(`${BACKEND_URL}/activity`, {
+            headers: { Authorization: `Bearer ${token}` },
           });
 
-          const formattedData = response.data.data.map((activity) => {
-            const dateObj = new Date(activity.date);
-            const formattedDate = dateObj.toLocaleDateString("en-GB");
-            return { ...activity, date: formattedDate };
-          });
+          const formattedData = data.data.map((activity) => ({
+            ...activity,
+            date: new Date(activity.date).toLocaleDateString("en-GB"),
+          }));
 
           setActivities(formattedData);
           setFilteredActivities(formattedData);
         } catch (error) {
-          if (error.response && error.response.status === 401) {
+          if (error.response?.status === 401) {
             console.error("Unauthorized access:", error.response.data);
             setUser(null);
           } else {
-            console.error("Error fetching activities:", error);
+            console.error("Error fetching activities:", error.message || error);
           }
         } finally {
           setLoading(false);
@@ -61,6 +59,7 @@ const Home = ({ user, setUser }) => {
 
   const handleFilterChange = (e) => {
     setFilter(e.target.value);
+    setFilterValue("");
   };
 
   const handleFilterValueChange = (e) => {
@@ -68,34 +67,34 @@ const Home = ({ user, setUser }) => {
   };
 
   useEffect(() => {
-    let filtered = [...activities];
+    let filtered = activities;
 
-    if (filter !== "All" && filterValue.trim() !== "") {
+    if (filter !== "All" && filterValue.trim()) {
+      const value = filterValue.toLowerCase();
+
       switch (filter) {
         case "Date":
           filtered = activities.filter((activity) =>
-            activity.date.includes(filterValue)
+            activity.date.toLowerCase().includes(value)
           );
           break;
         case "Duration":
           filtered = activities.filter((activity) =>
-            activity.duration.toString().includes(filterValue)
+            activity.duration.toString().includes(value)
           );
           break;
         case "Difficulty":
           filtered = activities.filter((activity) =>
-            activity.difficulty
-              .toLowerCase()
-              .includes(filterValue.toLowerCase())
+            activity.difficulty.toLowerCase().includes(value)
           );
           break;
         case "Activity":
           filtered = activities.filter((activity) =>
-            activity.name.toLowerCase().includes(filterValue.toLowerCase())
+            activity.name.toLowerCase().includes(value)
           );
           break;
         default:
-          filtered = activities;
+          break;
       }
     }
 
@@ -115,17 +114,19 @@ const Home = ({ user, setUser }) => {
     <div className="p-4">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl my-8">Activity List</h1>
-        <Link to="/activity/create">
-          <button className="px-4 py-2 bg-sky-800 text-white rounded-md">
-            Add Activity
+        <div className="flex gap-4">
+          <Link to="/activity/create">
+            <button className="px-4 py-2 bg-sky-800 text-white rounded-md">
+              Add Activity
+            </button>
+          </Link>
+          <button
+            className="px-4 py-2 bg-red-500 text-white rounded-md"
+            onClick={logout}
+          >
+            Logout
           </button>
-        </Link>
-        <button
-          className="px-4 py-2 bg-red-500 text-white rounded-md"
-          onClick={logout}
-        >
-          Logout
-        </button>
+        </div>
       </div>
 
       <div className="my-4">
@@ -150,7 +151,7 @@ const Home = ({ user, setUser }) => {
             type="text"
             value={filterValue}
             onChange={handleFilterValueChange}
-            placeholder={`Enter ${filter}`}
+            placeholder={`Enter ${filter.toLowerCase()}`}
             className="border px-2 py-1 ml-4 rounded-md"
           />
         )}
