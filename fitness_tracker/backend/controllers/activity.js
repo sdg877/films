@@ -36,7 +36,7 @@ export const createActivity = async (req, res) => {
 export const getActivities = async (req, res) => {
   try {
     const userId = req.user._id;
-    const activities = await Activity.find({ user: userId }) || [];
+    const activities = (await Activity.find({ user: userId })) || [];
     return res.status(200).json({ data: activities });
   } catch (error) {
     console.error("Error fetching activities:", error.message);
@@ -46,10 +46,13 @@ export const getActivities = async (req, res) => {
   }
 };
 
-
 export const getActivityById = async (req, res) => {
   try {
     const { id } = req.params;
+
+    console.log("Activity ID:", id);
+    console.log("User ID:", req.user._id);
+
     const activity = await Activity.findById(id);
 
     if (!activity || activity.user.toString() !== req.user._id.toString()) {
@@ -61,6 +64,30 @@ export const getActivityById = async (req, res) => {
     return res.status(200).json(activity);
   } catch (error) {
     console.error("Error fetching activity by ID:", error.message);
+    return res
+      .status(500)
+      .json({ message: "Server error. Please try again later." });
+  }
+};
+
+export const getActivitiesByUserId = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const activities = await Activity.find({ user: userId }).populate(
+      "user",
+      "name email"
+    );
+
+    if (!activities || activities.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No activities found for this user." });
+    }
+
+    return res.status(200).json({ data: activities });
+  } catch (error) {
+    console.error("Error fetching activities by user ID:", error.message);
     return res
       .status(500)
       .json({ message: "Server error. Please try again later." });
@@ -135,22 +162,18 @@ export const deleteActivity = async (req, res) => {
 export const getAllActivities = async (req, res) => {
   try {
     const activities = await Activity.find()
-      .populate("user", "name email username") 
+      .populate("user", "name email username")
       .sort({ date: -1 });
 
-  
     if (!activities || activities.length === 0) {
       return res.status(404).json({ message: "No activities found" });
     }
 
-    return res.status(200).json({ data: activities }); // Return activities to the frontend
+    return res.status(200).json({ data: activities });
   } catch (error) {
     console.error("Error fetching all activities:", error.message);
-    return res.status(500).json({ message: "Server error. Please try again later." });
+    return res
+      .status(500)
+      .json({ message: "Server error. Please try again later." });
   }
 };
-
-
-
-
-
