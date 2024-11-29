@@ -8,7 +8,6 @@ const ActivityTable = ({ activities }) => {
     <table className="w-full border-collapse">
       <thead>
         <tr>
-          <th className="border border-slate-600 rounded-md">No</th>
           <th className="border border-slate-600 rounded-md max-md:hidden">Date</th>
           <th className="border border-slate-600 rounded-md">Time</th>
           <th className="border border-slate-600 rounded-md max-md:hidden">Activity</th>
@@ -20,7 +19,6 @@ const ActivityTable = ({ activities }) => {
       <tbody>
         {activities.map((activity, index) => (
           <tr key={activity._id} className="h-8">
-            <td className="border border-slate-700 text-center">{index + 1}</td>
             <td className="border border-slate-700 text-center">{activity.date}</td>
             <td className="border border-slate-700 text-center">{activity.time}</td>
             <td className="border border-slate-700 text-center">{activity.activity}</td>
