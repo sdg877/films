@@ -80,9 +80,7 @@ export const getActivitiesByUserId = async (req, res) => {
     );
 
     if (!activities || activities.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No activities found for this user." });
+      return res.status(200).json([]);
     }
 
     return res.status(200).json({ data: activities });
