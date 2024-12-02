@@ -84,5 +84,8 @@ export const update = async (req, res) => {
   }
 };
 
+export const validateToken = (req, res) => {
+  res.status(200).json({ user: req.user });
+};
 
 
