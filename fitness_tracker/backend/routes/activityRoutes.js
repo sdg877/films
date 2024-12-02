@@ -15,7 +15,7 @@ const router = express.Router();
 router.post("/", authenticateUser, createActivity);
 router.get("/", authenticateUser, getActivities);
 router.get("/all", authenticateUser, getAllActivities);
-router.get("/user", authenticateUser, getActivitiesByUserId)
+router.get("/user/:userId", authenticateUser, getActivitiesByUserId)
 router.get("/:id", authenticateUser, getActivityById);
 router.put("/:id", authenticateUser, updateActivity);
 router.delete("/:id", authenticateUser, deleteActivity);
