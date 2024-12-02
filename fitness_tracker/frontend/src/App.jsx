@@ -8,15 +8,31 @@ import EditActivity from "./components/EditActivity";
 import DeleteActivity from "./components/DeleteActivity";
 import AuthPage from "./pages/AuthPage";
 import SignUpForm from "./components/SignUpForm";
+import axios from "axios";
 
 const App = () => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
+    const fetchUser = async () => {
+      const storedToken = localStorage.getItem("token");
+      if (storedToken) {
+        try {
+          const { data } = await axios.get(
+            `${import.meta.env.VITE_BACKEND_URL}/users/validate`,
+            { headers: { Authorization: `Bearer ${storedToken}` } }
+          );
+          setUser(data.user);
+        } catch (error) {
+          console.error("Token validation failed:", error);
+          localStorage.removeItem("token");
+        }
+      }
+      setLoading(false);
+    };
+
+    fetchUser();
   }, []);
 
   useEffect(() => {
@@ -28,6 +44,10 @@ const App = () => {
   }, [user]);
 
   const isAuthenticated = !!user;
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <BrowserRouter>
