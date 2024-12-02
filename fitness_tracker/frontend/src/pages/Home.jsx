@@ -11,6 +11,8 @@ const Home = ({ user, setUser }) => {
   const [userActivities, setUserActivities] = useState([]);
   const [allActivities, setAllActivities] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedDifficulty, setSelectedDifficulty] = useState('');
 
   useEffect(() => {
     if (user) {
@@ -76,6 +78,14 @@ const Home = ({ user, setUser }) => {
     setUser(null);
   };
 
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value.toLowerCase());
+  };
+
+  const handleDifficultyChange = (event) => {
+    setSelectedDifficulty(event.target.value);
+  };
+
   if (!user) {
     return (
       <div className="text-center">
@@ -109,7 +119,31 @@ const Home = ({ user, setUser }) => {
       ) : (
         <>
           <h2 className="text-2xl mt-8">Your Activity</h2>
-          <ActivityTable activities={userActivities} />
+          <div className="flex justify-between mb-4">
+            <input
+              type="text"
+              placeholder="Search Your Activities"
+              className="border rounded-md px-2 py-1 mr-4"
+              value={searchTerm}
+              onChange={handleSearchChange}
+            />
+            <select
+              value={selectedDifficulty}
+              onChange={handleDifficultyChange}
+              className="border rounded-md px-2 py-1"
+            >
+              <option value="">All Difficulties</option>
+              <option value="Easy">Easy</option>
+              <option value="Medium">Medium</option>
+              <option value="Hard">Hard</option>
+            </select>
+          </div>
+          <ActivityTable
+            activities={userActivities.filter((activity) =>
+              activity.activity.toLowerCase().includes(searchTerm.toLowerCase()) &&
+              (!selectedDifficulty || activity.difficulty === selectedDifficulty)
+            )}
+          />
 
           <h2 className="text-2xl mt-8">All Users' Activity</h2>
           <UserActivityTable activities={allActivities} />
