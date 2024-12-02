@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./components/AuthContext";
+import { useAuth } from "./components/AuthContext";
 import Home from "./pages/Home";
 import CreateActivity from "./components/CreateActivity";
 import ShowActivity from "./components/ShowActivity";
@@ -11,8 +11,8 @@ import SignUpForm from "./components/SignUpForm";
 import axios from "axios";
 
 const App = () => {
-  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { auth, login } = useAuth();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -23,7 +23,7 @@ const App = () => {
             `${import.meta.env.VITE_BACKEND_URL}/users/validate`,
             { headers: { Authorization: `Bearer ${storedToken}` } }
           );
-          setUser(data.user);
+          login(data.user);
         } catch (error) {
           console.error("Token validation failed:", error);
           localStorage.removeItem("token");
@@ -33,17 +33,7 @@ const App = () => {
     };
 
     fetchUser();
-  }, []);
-
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem("user", JSON.stringify(user));
-    } else {
-      localStorage.removeItem("user");
-    }
-  }, [user]);
-
-  const isAuthenticated = !!user;
+  }, [login]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -51,38 +41,38 @@ const App = () => {
 
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <Routes>
-          <Route
-            path="/activity"
-            element={
-              isAuthenticated ? (
-                <Home user={user} setUser={setUser} />
-              ) : (
-                <Navigate to="/" />
-              )
-            }
-          />
-          <Route
-            path="/activity/create"
-            element={isAuthenticated ? <CreateActivity /> : <Navigate to="/" />}
-          />
-          <Route
-            path="/activity/:id"
-            element={isAuthenticated ? <ShowActivity /> : <Navigate to="/" />}
-          />
-          <Route
-            path="/activity/edit/:id"
-            element={isAuthenticated ? <EditActivity /> : <Navigate to="/" />}
-          />
-          <Route
-            path="/activity/delete/:id"
-            element={isAuthenticated ? <DeleteActivity /> : <Navigate to="/" />}
-          />
-          <Route path="/" element={<AuthPage setUser={setUser} />} />
-          <Route path="/signup" element={<SignUpForm setUser={setUser} />} />
-        </Routes>
-      </AuthProvider>
+      <Routes>
+        <Route
+          path="/activity"
+          element={auth?.isAuthenticated ? <Home /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/activity/create"
+          element={
+            auth?.isAuthenticated ? <CreateActivity /> : <Navigate to="/" />
+          }
+        />
+        <Route
+          path="/activity/:id"
+          element={
+            auth?.isAuthenticated ? <ShowActivity /> : <Navigate to="/" />
+          }
+        />
+        <Route
+          path="/activity/edit/:id"
+          element={
+            auth?.isAuthenticated ? <EditActivity /> : <Navigate to="/" />
+          }
+        />
+        <Route
+          path="/activity/delete/:id"
+          element={
+            auth?.isAuthenticated ? <DeleteActivity /> : <Navigate to="/" />
+          }
+        />
+        <Route path="/" element={<AuthPage />} />
+        <Route path="/signup" element={<SignUpForm />} />
+      </Routes>
     </BrowserRouter>
   );
 };
