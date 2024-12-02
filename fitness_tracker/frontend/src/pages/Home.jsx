@@ -3,21 +3,19 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import Spinner from "../components/Spinner";
 import ActivityTable from "../components/ActivityTable";
+import UserActivityTable from "../components/UserActivityTable"; 
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const Home = ({ user, setUser }) => {
-  const [activities, setActivities] = useState([]);
+  const [userActivities, setUserActivities] = useState([]);
+  const [allActivities, setAllActivities] = useState([]); 
   const [loading, setLoading] = useState(false);
-  const [filter, setFilter] = useState("All");
-  const [filteredActivities, setFilteredActivities] = useState([]);
-  const [filterValue, setFilterValue] = useState("");
 
   useEffect(() => {
     if (user) {
-      const fetchActivities = async () => {
+      const fetchUserActivities = async () => {
         setLoading(true);
-
         const token = localStorage.getItem("token");
         if (!token) {
           setLoading(false);
@@ -25,7 +23,7 @@ const Home = ({ user, setUser }) => {
         }
 
         try {
-          const { data } = await axios.get(`${BACKEND_URL}/activity`, {
+          const { data } = await axios.get(`${BACKEND_URL}/activity/user/${user.id}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
 
@@ -33,73 +31,52 @@ const Home = ({ user, setUser }) => {
             ...activity,
             date: new Date(activity.date).toLocaleDateString("en-GB"),
           }));
+          console.log("User ID:", user?.id);
 
-          setActivities(formattedData);
-          setFilteredActivities(formattedData);
+          setUserActivities(formattedData); 
         } catch (error) {
-          if (error.response?.status === 401) {
-            console.error("Unauthorized access:", error.response.data);
-            setUser(null);
-          } else {
-            console.error("Error fetching activities:", error.message || error);
-          }
+          console.error("Error fetching user activities:", error);
+        }
+      };
+
+      const fetchAllActivities = async () => {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+      
+        try {
+          const { data } = await axios.get(`${BACKEND_URL}/activity/all`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+      
+          console.log("Fetched Activities:", data.data);
+          console.log("Current User ID:", user?.id);
+      
+          const formattedData = data.data
+            .map((activity) => ({
+              ...activity,
+              date: new Date(activity.date).toLocaleDateString("en-GB"),
+            }))
+            .filter((activity) => activity.user?._id !== user.id) 
+            .sort((a, b) => new Date(b.date) - new Date(a.date)); 
+      
+          setAllActivities(formattedData);
+        } catch (error) {
+          console.error("Error fetching all activities:", error);
         } finally {
           setLoading(false);
         }
       };
+      
 
-      fetchActivities();
+      fetchUserActivities();
+      fetchAllActivities();
     }
-  }, [user, setUser]);
+  }, [user]);
 
   const logout = () => {
     localStorage.removeItem("token");
     setUser(null);
   };
-
-  const handleFilterChange = (e) => {
-    setFilter(e.target.value);
-    setFilterValue("");
-  };
-
-  const handleFilterValueChange = (e) => {
-    setFilterValue(e.target.value);
-  };
-
-  useEffect(() => {
-    let filtered = activities;
-
-    if (filter !== "All" && filterValue.trim()) {
-      const value = filterValue.toLowerCase();
-
-      switch (filter) {
-        case "Date":
-          filtered = activities.filter((activity) =>
-            activity.date.toLowerCase().includes(value)
-          );
-          break;
-        case "Duration":
-          filtered = activities.filter((activity) =>
-            activity.duration.toString().includes(value)
-          );
-          break;
-        case "Difficulty":
-          filtered = activities.filter((activity) =>
-            activity.difficulty.toLowerCase().includes(value)
-          );
-          break;
-        case "Activity":
-          filtered = activities.filter((activity) =>
-            activity.name.toLowerCase().includes(value)
-          );
-          break;
-        default:
-          break;
-      }
-    }
-
-    setFilteredActivities(filtered);
-  }, [filter, filterValue, activities]);
 
   if (!user) {
     return (
@@ -129,38 +106,16 @@ const Home = ({ user, setUser }) => {
         </div>
       </div>
 
-      <div className="my-4">
-        <label htmlFor="filter" className="mr-2 font-semibold">
-          Filter by:
-        </label>
-        <select
-          id="filter"
-          value={filter}
-          onChange={handleFilterChange}
-          className="border px-2 py-1 rounded-md"
-        >
-          <option value="All">All</option>
-          <option value="Date">Date</option>
-          <option value="Duration">Duration</option>
-          <option value="Difficulty">Difficulty</option>
-          <option value="Activity">Activity</option>
-        </select>
-
-        {filter !== "All" && (
-          <input
-            type="text"
-            value={filterValue}
-            onChange={handleFilterValueChange}
-            placeholder={`Enter ${filter.toLowerCase()}`}
-            className="border px-2 py-1 ml-4 rounded-md"
-          />
-        )}
-      </div>
-
       {loading ? (
         <Spinner />
       ) : (
-        <ActivityTable activities={filteredActivities} />
+        <>
+          <h2 className="text-2xl mt-8">Your Activity</h2>
+          <ActivityTable activities={userActivities} /> 
+
+          <h2 className="text-2xl mt-8">All Users' Activity</h2>
+          <UserActivityTable activities={allActivities} /> 
+        </>
       )}
     </div>
   );
