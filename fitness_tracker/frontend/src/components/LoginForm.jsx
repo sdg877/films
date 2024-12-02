@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from "../components/AuthContext";  
 
-const LoginForm = ({ setUser }) => {
+const LoginForm = () => {
+  const { login } = useAuth();  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const navigate = useNavigate();  
+  const navigate = useNavigate();
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -20,27 +22,15 @@ const LoginForm = ({ setUser }) => {
       const { token, user } = response.data;
 
       localStorage.setItem("token", token);
+      login(user); 
 
-      if (typeof setUser === "function") {
-        await setUser(user);  
-        navigate("/activity");
-      } else {
-        console.error("setUser is not a function");
-      }
-
-      setError("");
+      
 
     } catch (error) {
-      if (error.response) {
-        console.error("Login failed:", error.response.data);
-        setError(error.response.data.message || "Invalid email or password.");
-      } else if (error.request) {
-        console.error("Login failed:", error.request);
-        setError("No response from server. Please try again later.");
-      } else {
-        console.error("Login failed:", error.message);
-        setError("An unexpected error occurred.");
-      }
+      console.error("Login failed:", error);
+      setError("Invalid email or password.");
+    } finally {
+      navigate("/activity");
     }
   };
 
@@ -49,10 +39,7 @@ const LoginForm = ({ setUser }) => {
       <h2 className="text-2xl font-bold mb-4">Login</h2>
       <form onSubmit={handleLogin} className="space-y-4">
         <div>
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
             Email
           </label>
           <input
@@ -66,10 +53,7 @@ const LoginForm = ({ setUser }) => {
           />
         </div>
         <div>
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="password" className="block text-sm font-medium text-gray-700">
             Password
           </label>
           <input
