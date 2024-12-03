@@ -56,7 +56,7 @@ const ShowActivity = () => {
 
 
         const filteredSimilarActivities = similarData.filter(
-          (activity) => activity._id !== data._id // Use _id instead of id
+          (activity) => activity._id !== data._id 
         );
 
 
@@ -116,7 +116,7 @@ const ShowActivity = () => {
                   <div
                     key={similarActivity._id}
                     className="border-2 border-sky-300 p-4 mb-4 rounded-xl cursor-pointer"
-                    onClick={() => handleClickSimilarActivity(similarActivity._id)} // Handle click
+                    onClick={() => handleClickSimilarActivity(similarActivity._id)} 
                   >
                     <span className="text-xl mr-4 text-gray-500">Activity</span>
                     <span>{similarActivity.activity}</span>
