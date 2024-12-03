@@ -172,3 +172,25 @@ export const getAllActivities = async (req, res) => {
       .json({ message: "Server error. Please try again later." });
   }
 };
+
+export const getSimilarActivities = async (req, res) => {
+  const { activityName } = req.query;
+
+  if (!activityName) {
+    return res.status(400).json({ message: "Activity name is required." });
+  }
+
+  try {
+    const similarActivities = await Activity.find({
+      activity: { $regex: activityName, $options: "i" },
+    });
+
+    if (similarActivities.length === 0) {
+      return res.status(404).json({ message: "No similar activities found" });
+    }
+
+    res.json(similarActivities);
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
