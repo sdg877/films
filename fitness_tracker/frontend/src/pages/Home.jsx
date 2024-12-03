@@ -1,92 +1,77 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { useAuth } from "../components/AuthContext";
 import Spinner from "../components/Spinner";
 import ActivityTable from "../components/ActivityTable";
 import UserActivityTable from "../components/UserActivityTable";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-const Home = ({ user, setUser }) => {
+const Home = () => {
   const [userActivities, setUserActivities] = useState([]);
   const [allActivities, setAllActivities] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedDifficulty, setSelectedDifficulty] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedDifficulty, setSelectedDifficulty] = useState("");
+  const { auth } = useAuth();
 
   useEffect(() => {
-    if (user) {
-      const fetchUserActivities = async () => {
-        setLoading(true);
-        const token = localStorage.getItem("token");
-        if (!token) {
-          setLoading(false);
-          return;
-        }
+    const fetchActivities = async () => {
+      if (!auth?.isAuthenticated || !auth?.user) return;
 
-        try {
-          const { data } = await axios.get(
-            `${BACKEND_URL}/activity/user/${user.id}`,
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setLoading(false);
+        return;
+      }
 
-          const formattedData = data.data.map((activity) => ({
+      try {
+        const userActivitiesResponse = await axios.get(
+          `${BACKEND_URL}/activity/user/${auth.user.id}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        const userActivitiesData = userActivitiesResponse.data.data.map(
+          (activity) => ({
             ...activity,
             date: new Date(activity.date).toLocaleDateString("en-GB"),
-          }));
+          })
+        );
+        setUserActivities(userActivitiesData);
 
-          setUserActivities(formattedData);
-        } catch (error) {
-          console.error("Error fetching user activities:", error);
-        }
-      };
+        const allActivitiesResponse = await axios.get(
+          `${BACKEND_URL}/activity/all`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        const allActivitiesData = allActivitiesResponse.data.data
+          .map((activity) => ({
+            ...activity,
+            date: new Date(activity.date).toLocaleDateString("en-GB"),
+          }))
+          .filter((activity) => activity.user?._id !== auth.user.id)
+          .sort((a, b) => new Date(b.date) - new Date(a.date));
+        setAllActivities(allActivitiesData);
+      } catch (error) {
+        console.error("Error fetching activities:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      const fetchAllActivities = async () => {
-        const token = localStorage.getItem("token");
-        if (!token) return;
-
-        try {
-          const { data } = await axios.get(`${BACKEND_URL}/activity/all`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-
-          const formattedData = data.data
-            .map((activity) => ({
-              ...activity,
-              date: new Date(activity.date).toLocaleDateString("en-GB"),
-            }))
-            .filter((activity) => activity.user?._id !== user.id)
-            .sort((a, b) => new Date(b.date) - new Date(a.date));
-
-          setAllActivities(formattedData);
-        } catch (error) {
-          console.error("Error fetching all activities:", error);
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      fetchUserActivities();
-      fetchAllActivities();
-    }
-  }, [user]);
+    fetchActivities();
+  }, [auth?.isAuthenticated, auth?.user?.id]);
 
   const logout = () => {
     localStorage.removeItem("token");
-    setUser(null);
+    window.location.reload();
   };
 
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value.toLowerCase());
-  };
-
-  const handleDifficultyChange = (event) => {
+  const handleSearchChange = (event) => setSearchTerm(event.target.value);
+  const handleDifficultyChange = (event) =>
     setSelectedDifficulty(event.target.value);
-  };
 
-  if (!user) {
+  if (!auth?.isAuthenticated) {
     return (
       <div className="text-center">
         <h2>Log in to view activities</h2>
@@ -139,9 +124,13 @@ const Home = ({ user, setUser }) => {
             </select>
           </div>
           <ActivityTable
-            activities={userActivities.filter((activity) =>
-              activity.activity.toLowerCase().includes(searchTerm.toLowerCase()) &&
-              (!selectedDifficulty || activity.difficulty === selectedDifficulty)
+            activities={userActivities.filter(
+              (activity) =>
+                activity.activity
+                  .toLowerCase()
+                  .includes(searchTerm.toLowerCase()) &&
+                (!selectedDifficulty ||
+                  activity.difficulty === selectedDifficulty)
             )}
           />
 
