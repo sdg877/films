@@ -134,23 +134,16 @@ export const updateActivity = async (req, res) => {
 
 export const deleteActivity = async (req, res) => {
   try {
-    const { id } = req.params;
-    const activity = await Activity.findById(id);
-
-    if (!activity || activity.user.toString() !== req.user._id.toString()) {
-      return res
-        .status(404)
-        .json({ message: "Activity not found or access denied." });
+    const activity = await Activity.findByIdAndDelete(req.params.id);
+    
+    if (!activity) {
+      return res.status(404).json({ message: 'Activity not found' });
     }
-
-    await activity.remove();
-
-    return res.status(200).json({ message: "Activity deleted successfully." });
+    
+    res.status(200).json({ message: 'Activity deleted successfully' });
   } catch (error) {
-    console.error("Error deleting activity:", error.message);
-    return res
-      .status(500)
-      .json({ message: "Server error. Please try again later." });
+    console.error('Error deleting activity:', error);
+    res.status(500).json({ message: 'Server error, please try again later' });
   }
 };
 
