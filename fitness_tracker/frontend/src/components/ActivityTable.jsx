@@ -26,7 +26,7 @@ const ActivityTable = ({ activities }) => {
             <td className="border border-slate-700 text-center">{activity.difficulty}</td>
             <td className="border border-slate-700 text-center">
               <div className="flex justify-center gap-x-4">
-                <Link to={`/activity/details/${activity._id}`}>
+                <Link to={`/activity/${activity._id}`}>
                   <BsInfoCircle className="text-2xl text-green-800" />
                 </Link>
                 <Link to={`/activity/edit/${activity._id}`}>
