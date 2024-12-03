@@ -7,13 +7,15 @@ import {
   updateActivity,
   deleteActivity,
   getAllActivities,
-  getActivitiesByUserId
+  getActivitiesByUserId,
+  getSimilarActivities
 } from "../controllers/activity.js";
 
 const router = express.Router();
 
 router.post("/", authenticateUser, createActivity);
 router.get("/", authenticateUser, getActivities);
+router.get("/similar", getSimilarActivities);
 router.get("/all", authenticateUser, getAllActivities);
 router.get("/user/:userId", authenticateUser, getActivitiesByUserId)
 router.get("/:id", authenticateUser, getActivityById);
