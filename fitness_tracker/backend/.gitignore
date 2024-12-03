@@ -2,3 +2,5 @@
 .env
 weather_app/
 sustainableswapshop/
+node_modules/
+package-lock.json
