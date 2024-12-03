@@ -50,9 +50,6 @@ export const getActivityById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    console.log("Activity ID:", id);
-    console.log("User ID:", req.user._id);
-
     const activity = await Activity.findById(id);
 
     if (!activity || activity.user.toString() !== req.user._id.toString()) {
