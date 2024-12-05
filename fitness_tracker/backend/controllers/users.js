@@ -7,7 +7,7 @@ export const create = async (req, res) => {
     const { name, email, password, isAdmin } = req.body;
 
     const user = await User.create({
-      name,  
+      name,
       email,
       password,
       isAdmin: isAdmin || false,
@@ -17,7 +17,12 @@ export const create = async (req, res) => {
 
     res.status(201).json({
       token,
-      user: { id: user._id, name: user.name, email: user.email, isAdmin: user.isAdmin },  
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        isAdmin: user.isAdmin,
+      },
     });
   } catch (err) {
     console.error("Error creating user:", err);
@@ -74,10 +79,10 @@ export const update = async (req, res) => {
     const { id } = req.params;
 
     const updatedUser = await User.findByIdAndUpdate(id, req.body, {
-      new: true, 
+      new: true,
     });
 
-    res.json(updatedUser); 
+    res.json(updatedUser);
   } catch (error) {
     console.error(error);
     res.status(400).json({ error: "Failed to update user" });
@@ -88,4 +93,24 @@ export const validateToken = (req, res) => {
   res.status(200).json({ user: req.user });
 };
 
+export const getUser = async (req, res) => {
+  try {
+    const { id } = req.params;
 
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      isAdmin: user.isAdmin,
+    });
+  } catch (err) {
+    console.error("Error fetching user:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
