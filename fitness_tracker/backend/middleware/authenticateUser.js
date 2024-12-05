@@ -13,7 +13,6 @@ const authenticateUser = (req, res, next) => {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
-    console.log("Decoded Token:", decoded);
     req.user = decoded.user;
     next();
   });
