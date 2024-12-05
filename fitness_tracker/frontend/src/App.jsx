@@ -9,6 +9,7 @@ import DeleteActivity from "./components/DeleteActivity";
 import AuthPage from "./pages/AuthPage";
 import SignUpForm from "./components/SignUpForm";
 import axios from "axios";
+import Spinner from "./components/Spinner"; 
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -36,11 +37,11 @@ const App = () => {
   }, [login]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Spinner />; 
   }
 
   return (
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_relativeSplatPath: true }}>
       <Routes>
         <Route
           path="/activity"
