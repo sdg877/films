@@ -1,74 +1,82 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from './AuthContext';  
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom";
+import Spinner from "./Spinner"; 
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const EditActivity = () => {
-  const { auth } = useAuth(); 
-  const { user } = auth;
+  const { id } = useParams(); 
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [activity, setActivity] = useState("");
   const [duration, setDuration] = useState("");
   const [difficulty, setDifficulty] = useState("Easy");
   const [loading, setLoading] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   const navigate = useNavigate();
-  const { id } = useParams();
 
   useEffect(() => {
-    if (!user || !user.id) {
-      alert("User not logged in or invalid user ID!");
-      navigate("/login");
-      return;
-    }
+    const fetchActivityDetails = async () => {
+      setLoading(true);
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("No authentication token found.");
 
-    setLoading(true);
-    axios.get(`${BACKEND_URL}/activity/user/${user.id}`)
-      .then((response) => {
-        setDate(response.data.date);
-        setTime(response.data.time);
-        setActivity(response.data.activity);
-        setDuration(response.data.duration);
-        setDifficulty(response.data.difficulty);
+        const response = await axios.get(`${BACKEND_URL}/activity/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const { date, time, activity, duration, difficulty } = response.data;
+        setDate(date);
+        setTime(time);
+        setActivity(activity);
+        setDuration(duration);
+        setDifficulty(difficulty);
+      } catch (error) {
+        console.error("Fetch Activity Error:", error);
+        setSnackbar({ open: true, message: "Failed to fetch activity details.", severity: "error" });
+      } finally {
         setLoading(false);
-      }).catch((error) => {
-        setLoading(false);
-        alert('An error occurred, please check console');
-        console.log(error);
-      });
-  }, [id, user, navigate]);
-
-  const handleEditActivity = () => {
-    if (!user || !user.id) {
-      alert("User not logged in or invalid user ID!");
-      return;
-    }
-
-    const data = {
-      date,
-      time,
-      activity,
-      duration,
-      difficulty
+      }
     };
+
+    fetchActivityDetails();
+  }, [id]);
+
+  const handleEditActivity = async () => {
     setLoading(true);
-    axios.put(`${BACKEND_URL}/activity/${user.id}`, data)
-      .then(() => {
-        setLoading(false);
-        navigate('/');
-      }).catch((error) => {
-        setLoading(false);
-        alert('An error occurred, please check console');
-        console.log(error);
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No authentication token found.");
+
+      const data = { date, time, activity, duration, difficulty };
+      const response = await axios.put(`${BACKEND_URL}/activity/${id}`, data, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-  }
+
+      if (response.status === 200) {
+        setSnackbar({ open: true, message: "Activity updated successfully", severity: "success" });
+        setTimeout(() => navigate("/activity"), 2000);
+      } else {
+        throw new Error("Failed to update the activity.");
+      }
+    } catch (error) {
+      console.error("Edit Activity Error:", error);
+      setSnackbar({ open: true, message: "Failed to edit activity.", severity: "error" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSnackbarClose = () => setSnackbar({ ...snackbar, open: false });
 
   return (
     <div className="p-4">
       <h1 className="text-3xl my-4">Edit Activity</h1>
-      {loading ? <div>Loading...</div> : ""}
+      {loading && <Spinner />}
       <div className="flex flex-col border-2 border-sky-400 rounded-xl w-[600px] p-4 mx-auto">
         <div className="my-4">
           <label className="text-xl mr-4 text-gray-500">Date</label>
@@ -125,6 +133,17 @@ const EditActivity = () => {
           Save Changes
         </button>
       </div>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: "100%" }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
